@@ -67,7 +67,7 @@ const Hero = () => {
              w-full object-cover h-full transition-transform duration-1000 "
           >
             {/* group-hover:scale-110 */}
-            <source src={"/homePageVid.mp4"} type="video/mp4" />
+            <source src={"/homepageVid.mp4"} type="video/mp4" />
           </video>
 
           {/* Overlay */}
