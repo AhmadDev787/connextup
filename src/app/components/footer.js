@@ -1,5 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
+import { img } from "framer-motion/client";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
@@ -140,7 +141,7 @@ const Footer = () => {
           className="mt-16 flex flex-col text-white items-center justify-between gap-6 border-t border-white/10 pt-8 text-center"
         >
           <p className="max-w-3xl text-xs sm:text-sm leading-relaxed text-white">
-            © 2026 Connect SRL. P.IVA 10997890966 <br />
+            © 2026 Connext SRL. P.IVA 10997890966 <br />
             Via Bagutta 13, 20121 Milano / Corso Vittorio Emanuele 155, 83100
             Avellino/ Tirana - Kavaja St.
           </p>
@@ -150,27 +151,44 @@ const Footer = () => {
           </p>
 
           <div className="flex items-center gap-4">
-            {["/linkedin.png", "/facebook.png", "/instagram.png"].map(
-              (icon, i) => (
-                <motion.div
-                  key={i}
-                  whileHover={{
-                    y: -4,
-                    scale: 1.08,
-                  }}
-                  className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/5 text-white backdrop-blur-md transition-all duration-300 hover:border-white/30 hover:bg-white/10"
-                >
-                  {/* <Icon size={18} /> */}
+            {[
+              {
+                img: "/linkedin.png",
+                link: "https://www.linkedin.com/company/connext-srl/",
+              },
+              {
+                img: "/facebook.png",
+                link: "https://www.facebook.com/share/1DU7oSiBM5/?mibextid=wwXIfr",
+              },
+              {
+                img: "/instagram.png",
+                link: "https://www.instagram.com/connext_up?igsh=anRwMHV5Mnlra3ox",
+              },
+              {
+                img: "/tiktok.png",
+                link: "https://www.tiktok.com/@connextup?_r=1&_t=ZN-97jIJu3CDcV",
+              },
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                whileHover={{
+                  y: -4,
+                  scale: 1.08,
+                }}
+                className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/5 text-white backdrop-blur-md transition-all duration-300 hover:border-white/30 hover:bg-white/10"
+              >
+                {/* <Icon size={18} /> */}
+                <Link href={item.link}>
                   <Image
-                    src={icon}
+                    src={item.img}
                     className="h-5 w-5"
                     height={50}
                     width={50}
                     alt="social logos"
                   />
-                </motion.div>
-              ),
-            )}
+                </Link>
+              </motion.div>
+            ))}
           </div>
         </motion.div>
       </div>
