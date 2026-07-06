@@ -2,7 +2,8 @@
 
 import { ChevronDown } from "lucide-react";
 import { motion } from "framer-motion";
-
+import { useForm } from "react-hook-form";
+import { useState } from "react";
 const fadeUp = {
   hidden: { opacity: 0, y: 60 },
   show: (i = 1) => ({
@@ -15,36 +16,96 @@ const fadeUp = {
     },
   }),
 };
-const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  const formData = new FormData();
-
-  formData.append("nome", nome);
-  formData.append("cognome", cognome);
-  formData.append("telefono", telefono);
-  formData.append("email", email);
-  formData.append("azienda", azienda);
-  formData.append("obiettivo", obiettivo);
-  formData.append("fatturato", fatturato);
-  formData.append("privacy", privacy ? "1" : "");
-  formData.append("website", ""); // Honeypot
-
-  const res = await fetch("/contact.php", {
-    method: "POST",
-    body: formData,
-  });
-
-  const data = await res.json();
-
-  if (data.success) {
-    alert("Message Sent!");
-  } else {
-    alert(data.message);
-  }
-};
 
 export default function LuxuryContactSection() {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    defaultValues: {
+      nome: "",
+      cognome: "",
+      telefono: "",
+      email: "",
+      azienda: "",
+      obiettivo: "",
+      fatturato: "",
+      privacy: false,
+    },
+  });
+
+  const [message, setMessage] = useState("");
+  // const onSubmit = async (formData) => {
+  //   if (!formData.privacy) {
+  //     setMessage("Please accept the privacy policy.");
+  //     return;
+  //   }
+  //   console.log("formdata", formData);
+
+  //   setMessage("");
+  //   const fd = new FormData();
+
+  //   Object.entries(formData).forEach(([key, value]) => {
+  //     fd.append(key, value);
+  //   });
+
+  //   try {
+  //     const res = await fetch("/contact.php", {
+  //       method: "POST",
+  //       body: fd,
+  //     });
+
+  //     const data = await res.json();
+
+  //     if (data.success) {
+  //       setMessage("Message sent successfully.");
+  //       reset();
+  //     } else {
+  //       setMessage(data.message || "Something went wrong.");
+  //     }
+  //   } catch (err) {
+  //     setMessage("Server Error");
+  //   }
+  // };
+  const onSubmit = async (formData) => {
+    if (!formData.privacy) {
+      setMessage("Please accept the privacy policy.");
+      return;
+    }
+
+    setMessage("");
+
+    const fd = new FormData();
+
+    Object.entries(formData).forEach(([key, value]) => {
+      fd.append(key, value);
+    });
+
+    try {
+      const res = await fetch("/contact.php", {
+        method: "POST",
+        body: fd,
+      });
+
+      if (!res.ok) {
+        throw new Error("Request failed");
+      }
+
+      const data = await res.json();
+
+      if (data.success) {
+        setMessage(data.message);
+        reset();
+      } else {
+        setMessage(data.message || "Something went wrong.");
+      }
+    } catch (err) {
+      console.error(err);
+      setMessage("Server Error");
+    }
+  };
   return (
     <main className="relative mb-6 pb-4">
       {/* White 90% */}
@@ -100,42 +161,96 @@ export default function LuxuryContactSection() {
 
               {/* FORM */}
               <form
-                onSubmit={handleSubmit}
+                onSubmit={handleSubmit(onSubmit)}
                 className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2"
               >
-                {[
-                  "Nome",
-                  "Cognome",
-                  "Numero di telefono",
-                  "E-mail",
-                  "Azienda",
-                ].map((item, index) => (
-                  <motion.div
-                    key={item}
-                    variants={fadeUp}
-                    initial="hidden"
-                    whileInView="show"
-                    viewport={{ once: true }}
-                    custom={index + 2}
-                    className={
-                      item === "Numero di telefono" ||
-                      item === "E-mail" ||
-                      item === "Azienda"
-                        ? "md:col-span-2"
-                        : ""
-                    }
-                  >
-                    <label className="mb-2 block text-sm font-semibold text-[#081735]">
-                      {item}
-                    </label>
-
-                    <input
-                      type="text"
-                      placeholder={`Inserisci ${item}`}
-                      className="h-14 w-full rounded-2xl border border-[#0a1d49]/20 bg-white/70 px-5 text-sm text-[#081735] outline-none backdrop-blur-md transition-all duration-300 placeholder:text-[#7a8499] focus:border-[#0a1d49] focus:bg-white focus:shadow-[0_0_30px_rgba(10,29,73,0.12)]"
-                    />
-                  </motion.div>
-                ))}
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-[#081735]">
+                    Nome
+                  </label>
+                  <input
+                    type="text"
+                    {...register("nome", {
+                      required: "Nome è obbligatorio",
+                    })}
+                    placeholder="Inserisci Nome"
+                    className="h-14 w-full rounded-2xl border border-[#0a1d49]/20 bg-white/70 px-5 text-sm text-[#081735] outline-none backdrop-blur-md transition-all duration-300 placeholder:text-[#7a8499] focus:border-[#0a1d49] focus:bg-white focus:shadow-[0_0_30px_rgba(10,29,73,0.12)]"
+                  />
+                  {errors.nome && (
+                    <p className="mt-1 ml-2 text-xs text-red-500">
+                      {errors.nome.message}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-[#081735]">
+                    Cognome
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Inserisci Cognome"
+                    {...register("cognome", {
+                      required: "Cognome è obbligatorio",
+                    })}
+                    className="h-14 w-full rounded-2xl border border-[#0a1d49]/20 bg-white/70 px-5 text-sm text-[#081735] outline-none backdrop-blur-md transition-all duration-300 placeholder:text-[#7a8499] focus:border-[#0a1d49] focus:bg-white focus:shadow-[0_0_30px_rgba(10,29,73,0.12)]"
+                  />
+                  {errors.cognome && (
+                    <p className="mt-1 ml-2 text-xs text-red-500">
+                      {errors.cognome.message}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-[#081735]">
+                    Telefono
+                  </label>
+                  <input
+                    type="tel"
+                    {...register("telefono", {
+                      required: "Telefono è obbligatorio",
+                    })}
+                    placeholder="Inserisci Telefono"
+                    className="h-14 w-full rounded-2xl border border-[#0a1d49]/20 bg-white/70 px-5 text-sm text-[#081735] outline-none backdrop-blur-md transition-all duration-300 placeholder:text-[#7a8499] focus:border-[#0a1d49] focus:bg-white focus:shadow-[0_0_30px_rgba(10,29,73,0.12)]"
+                  />
+                  {errors.telefono && (
+                    <p className="mt-1 ml-2 text-xs text-red-500">
+                      {errors.telefono.message}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-[#081735]">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    {...register("email", {
+                      required: "Email è obbligatorio",
+                      pattern: {
+                        value: /^\S+@\S+$/i,
+                        message: "Email non valida",
+                      },
+                    })}
+                    placeholder="Inserisci Email"
+                    className="h-14 w-full rounded-2xl border border-[#0a1d49]/20 bg-white/70 px-5 text-sm text-[#081735] outline-none backdrop-blur-md transition-all duration-300 placeholder:text-[#7a8499] focus:border-[#0a1d49] focus:bg-white focus:shadow-[0_0_30px_rgba(10,29,73,0.12)]"
+                  />
+                  {errors.email && (
+                    <p className="mt-1 ml-2 text-xs text-red-500">
+                      {errors.email.message}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-[#081735]">
+                    Azienda
+                  </label>
+                  <input
+                    type="text"
+                    {...register("azienda")}
+                    placeholder="Inserisci Azienda"
+                    className="h-14 w-full rounded-2xl border border-[#0a1d49]/20 bg-white/70 px-5 text-sm text-[#081735] outline-none backdrop-blur-md transition-all duration-300 placeholder:text-[#7a8499] focus:border-[#0a1d49] focus:bg-white focus:shadow-[0_0_30px_rgba(10,29,73,0.12)]"
+                  />
+                </div>
 
                 {/* Selects */}
                 <motion.div
@@ -150,7 +265,12 @@ export default function LuxuryContactSection() {
                   </label>
 
                   <div className="relative">
-                    <select className="h-14 w-full appearance-none rounded-2xl border border-[#0a1d49]/20 bg-white/70 px-5 text-sm text-[#081735] outline-none backdrop-blur-md transition-all duration-300 focus:border-[#0a1d49] focus:bg-white focus:shadow-[0_0_30px_rgba(10,29,73,0.12)]">
+                    <select
+                      className="h-14 w-full appearance-none rounded-2xl border border-[#0a1d49]/20 bg-white/70 px-5 text-sm text-[#081735] outline-none backdrop-blur-md transition-all duration-300 focus:border-[#0a1d49] focus:bg-white focus:shadow-[0_0_30px_rgba(10,29,73,0.12)]"
+                      {...register("obiettivo", {
+                        required: "Obiettivo è obbligatorio",
+                      })}
+                    >
                       <option>Lead, Vendite, Scalabilità...</option>
                       <option>Brand Awareness</option>
                       <option>Marketing</option>
@@ -159,6 +279,11 @@ export default function LuxuryContactSection() {
 
                     <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-cu-blue" />
                   </div>
+                  {errors.obiettivo && (
+                    <p className="mt-1 ml-2 text-xs text-red-500">
+                      {errors.obiettivo.message}
+                    </p>
+                  )}
                 </motion.div>
 
                 <motion.div
@@ -173,7 +298,12 @@ export default function LuxuryContactSection() {
                   </label>
 
                   <div className="relative">
-                    <select className="h-14 w-full appearance-none rounded-2xl border border-[#0a1d49]/20 bg-white/70 px-5 text-sm text-cu-blue outline-none backdrop-blur-md transition-all duration-300 focus:border-cu-blue focus:bg-white focus:shadow-[0_0_30px_rgba(10,29,73,0.12)]">
+                    <select
+                      className="h-14 w-full appearance-none rounded-2xl border border-[#0a1d49]/20 bg-white/70 px-5 text-sm text-cu-blue outline-none backdrop-blur-md transition-all duration-300 focus:border-cu-blue focus:bg-white focus:shadow-[0_0_30px_rgba(10,29,73,0.12)]"
+                      {...register("fatturato", {
+                        required: "Fatturato è obbligatorio",
+                      })}
+                    >
                       <option>Seleziona</option>
                       <option>10K - 50K</option>
                       <option>50K - 100K</option>
@@ -182,6 +312,11 @@ export default function LuxuryContactSection() {
 
                     <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-cu-blue" />
                   </div>
+                  {errors.fatturato && (
+                    <p className="mt-1 ml-2 text-xs text-red-500">
+                      {errors.fatturato.message}
+                    </p>
+                  )}
                 </motion.div>
 
                 {/* checkbox */}
@@ -191,18 +326,29 @@ export default function LuxuryContactSection() {
                   whileInView="show"
                   viewport={{ once: true }}
                   custom={10}
-                  className="md:col-span-2 mt-2 flex items-start gap-3"
+                  className="md:col-span-2 mt-2  gap-3"
                 >
-                  <input
-                    type="checkbox"
-                    className="mt-1 h-5 w-5 rounded border-cu-blue"
-                  />
+                  <div className="flex items-center gap-3 ">
+                    <input
+                      type="checkbox"
+                      className="mt-1 h-5 w-5 rounded border-cu-blue"
+                      {...register("privacy", {
+                        required:
+                          "Si prega di accettare l'informativa sulla privacy.",
+                      })}
+                    />
 
-                  <p className="text-xs leading-relaxed text-cu-blue">
-                    Acconsento al trattamento dei miei dati personali per essere
-                    ricontattato in relazione alla mia richiesta secondo quanto
-                    indicato nella Privacy Policy.
-                  </p>
+                    <p className="text-xs leading-relaxed text-cu-blue">
+                      Acconsento al trattamento dei miei dati personali per
+                      essere ricontattato in relazione alla mia richiesta
+                      secondo quanto indicato nella Privacy Policy.
+                    </p>
+                  </div>
+                  {errors.privacy && (
+                    <p className="mt-1 ml-2 text-xs text-red-500">
+                      {errors.privacy.message}
+                    </p>
+                  )}
                 </motion.div>
 
                 {/* button */}
@@ -220,10 +366,13 @@ export default function LuxuryContactSection() {
                       y: -2,
                     }}
                     whileTap={{ scale: 0.98 }}
+                    disabled={isSubmitting}
                     type="submit"
                     className="group relative mb-10 mt-3 h-14 w-full overflow-hidden rounded-2xl bg-cu-blue text-sm font-bold uppercase tracking-[0.2em] text-white hover:cursor-pointer transition-all duration-500"
                   >
-                    <span className="relative z-10">Iniziamo a Parlare</span>
+                    <span className="relative z-10">
+                      {isSubmitting ? "Sending..." : "Iniziamo a Parlare"}
+                    </span>
 
                     <div className="absolute inset-0 translate-y-full bg-white transition-transform duration-500 group-hover:translate-y-0" />
 
@@ -231,6 +380,11 @@ export default function LuxuryContactSection() {
                       Iniziamo a Parlare
                     </span>
                   </motion.button>
+                  {message && (
+                    <p className="mt-3 text-center font-bold text-base text-green-600">
+                      {message}
+                    </p>
+                  )}
                 </motion.div>
               </form>
             </div>

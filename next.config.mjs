@@ -4,7 +4,7 @@ const nextConfig = {
 
   allowedDevOrigins: ["10.185.64.140"],
   images: {
-    // unoptimized: true,
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",
@@ -20,7 +20,7 @@ const nextConfig = {
       },
     ],
   },
-  // output: "export",
+  output: "export",
 };
 
 export default nextConfig;

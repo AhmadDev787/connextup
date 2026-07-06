@@ -29,15 +29,15 @@ $azienda = clean($_POST["azienda"] ?? "");
 $obiettivo = clean($_POST["obiettivo"] ?? "");
 $fatturato = clean($_POST["fatturato"] ?? "");
 $privacy = $_POST["privacy"] ?? "";
-$website = clean($_POST["website"] ?? ""); // Honeypot
+// $website = clean($_POST["website"] ?? ""); // Honeypot
 
 // Honeypot
-if (!empty($website)) {
-    echo json_encode([
-        "success" => false
-    ]);
-    exit;
-}
+// if (!empty($website)) {
+//     echo json_encode([
+//         "success" => false
+//     ]);
+//     exit;
+// }
 
 // Validation
 
@@ -73,14 +73,14 @@ try {
     // SMTP
 
     $mail->isSMTP();
-
-    $mail->Host = 'smtp.hostinger.com';
+// enter the name of host like smtp provider
+    $mail->Host = '';
 
     $mail->SMTPAuth = true;
-
-    $mail->Username = 'info@webovatelabs.com';
-
-    $mail->Password = 'webovate2026@Info';
+// enter username 
+    $mail->Username = '';
+// enterb password
+    $mail->Password = '';
 
     // $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTSSL;
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;

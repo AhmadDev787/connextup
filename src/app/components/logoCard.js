@@ -128,7 +128,6 @@ export default function LogoCard(logo) {
   return (
     <div className="flex h-24 w-40 shrink-0 items-center justify-center rounded-2xl bg-cu-blue shadow-sm sm:h-28 sm:w-48 md:h-32 md:w-56">
       <AnimatePresence mode="wait">
-        {console.log("logo in comp", logo.logos)}
         <motion.img
           key={logo.logos}
           src={logo.logos}
